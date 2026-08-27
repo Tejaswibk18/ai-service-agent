@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Server Agent</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+
+    <header class="top-header">
+
+        <div class="brand">
+            <div class="brand-logo">AI</div>
+
+            <div class="brand-title">
+                AI Server Agent
+            </div>
+        </div>
+
+    </header>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main-container">
+
+
+        <!-- ================= CONNECTION ================= -->
+
+        <section class="connection-panel">
+
+            <div class="section-title">
+
+                <h1>Server Connection</h1>
+
+                <p>
+                    Connect to a server to view system information
+                    and interact with the AI agent.
+                </p>
+
+            </div>
+
+
+            <div class="connection-form">
+
+                <!-- IP -->
+                <div class="form-group">
+
+                    <label for="serverIp">
+                        IP Address
+                    </label>
+
+                    <input
+                        type="text"
+                        id="serverIp"
+                        placeholder="IP Address"
+                    >
+
+                </div>
+
+
+                <!-- Username -->
+                <div class="form-group">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        placeholder="Username"
+                    >
+
+                </div>
+
+
+                <!-- Authentication -->
+                <div class="form-group">
+
+                    <label for="authType">
+                        Authentication
+                    </label>
+
+                    <select id="authType">
+
+                        <option value="">
+                            Select authentication
+                        </option>
+
+                        <option value="password">
+                            Password
+                        </option>
+
+                        <option value="pem">
+                            PEM Key
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- Authentication details -->
+
+            <div
+                class="authentication-details"
+                id="authenticationDetails"
+            >
+
+                <div
+                    class="form-group"
+                    id="passwordGroup"
+                >
+
+                    <label for="serverPassword">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="serverPassword"
+                        placeholder="Password"
+                    >
+
+                </div>
+
+
+                <div
+                    class="form-group"
+                    id="pemGroup"
+                >
+
+                    <label for="pemKey">
+                        PEM Key
+                    </label>
+
+                    <input
+                        type="text"
+                        id="pemKey"
+                        placeholder="Path to PEM key"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="connection-actions">
+
+                <button
+                    class="primary-button"
+                    id="connectButton"
+                >
+                    CONNECT
+                </button>
+
+                <div
+                    class="connection-status"
+                    id="connectionStatus"
+                >
+                    Not connected
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= SERVER INFORMATION ================= -->
+
+        <section
+            class="server-section"
+            id="serverSection"
+        >
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>Server Information</h2>
+
+                    <p>
+                        System information collected from the
+                        connected server.
+                    </p>
+
+                </div>
+
+                <button
+                    class="secondary-button"
+                    id="refreshButton"
+                >
+                    REFRESH
+                </button>
+
+            </div>
+
+
+            <div class="server-info-grid">
+
+
+                <!-- OS -->
+
+                <div class="info-card">
+
+                    <span class="info-label">
+                        Operating System
+                    </span>
+
+                    <span
+                        class="info-value"
+                        id="serverOs"
+                    >
+                        —
+                    </span>
+
+                </div>
+
+
+                <!-- Hostname -->
+
+                <div class="info-card">
+
+                    <span class="info-label">
+                        Hostname
+                    </span>
+
+                    <span
+                        class="info-value"
+                        id="serverHostname"
+                    >
+                        —
+                    </span>
+
+                </div>
+
+
+                <!-- Kernel -->
+
+                <div class="info-card">
+
+                    <span class="info-label">
+                        Kernel
+                    </span>
+
+                    <span
+                        class="info-value"
+                        id="serverKernel"
+                    >
+                        —
+                    </span>
+
+                </div>
+
+
+                <!-- Uptime -->
+
+                <div class="info-card">
+
+                    <span class="info-label">
+                        Uptime
+                    </span>
+
+                    <span
+                        class="info-value"
+                        id="serverUptime"
+                    >
+                        —
+                    </span>
+
+                </div>
+
+
+                <!-- CPU -->
+
+                <div class="info-card">
+
+                    <span class="info-label">
+                        CPU
+                    </span>
+
+                    <span
+                        class="info-value"
+                        id="serverCpu"
+                    >
+                        —
+                    </span>
+
+                </div>
+
+
+                <!-- Memory -->
+
+                <div class="info-card">
+
+                    <span class="info-label">
+                        Memory
+                    </span>
+
+                    <span
+                        class="info-value"
+                        id="serverMemory"
+                    >
+                        —
+                    </span>
+
+                </div>
+
+
+                <!-- Disk -->
+
+                <div class="info-card">
+
+                    <span class="info-label">
+                        Disk
+                    </span>
+
+                    <span
+                        class="info-value"
+                        id="serverDisk"
+                    >
+                        —
+                    </span>
+
+                </div>
+
+
+                <!-- Health -->
+
+                <div class="info-card health-card">
+
+                    <span class="info-label">
+                        Health Status
+                    </span>
+
+                    <span
+                        class="health-status"
+                        id="serverHealth"
+                    >
+                        —
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= AI AGENT ================= -->
+
+        <section class="agent-section">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>AI Server Agent</h2>
+
+                    <p>
+                        Ask the agent about the connected server.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="agent-input-area">
+
+                <label for="agentQuery">
+                    Query
+                </label>
+
+                <textarea
+                    id="agentQuery"
+                    placeholder="Ask the agent something about the server..."
+                ></textarea>
+
+
+                <div class="agent-actions">
+
+                    <button
+                        class="primary-button"
+                        id="sendQueryButton"
+                    >
+                        SEND
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- Agent response -->
+
+            <div class="response-section">
+
+                <div class="response-header">
+
+                    <h3>Agent Response</h3>
+
+                </div>
+
+                <div
+                    class="agent-response"
+                    id="agentResponse"
+                >
+                    <span class="empty-response">
+                        No response yet.
+                    </span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= ANALYSIS ================= -->
+
+        <section class="analysis-section">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>Health Analysis</h2>
+
+                    <p>
+                        AI-generated analysis based on the
+                        collected server information.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="analysis-content"
+                id="analysisContent"
+            >
+                <span class="empty-response">
+                    No analysis available.
+                </span>
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer class="footer">
+
+        <span>
+            AI Server Agent
+        </span>
+
+        <span>
+            Server Monitoring &amp; AI Analysis
+        </span>
+
+    </footer>
+
+    
+    <script src="script.js"></script>
+
+</body>
+
+</html>

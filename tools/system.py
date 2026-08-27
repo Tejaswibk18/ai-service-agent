@@ -1,26 +1,34 @@
+from config.server import get_server
+from tools.ssh import ssh_execute
 import json
 
-from config.server import (
-    SERVER_HOST,
-    SERVER_USERNAME,
-    SERVER_PASSWORD,
-    SERVER_PEM_KEY,
-)
 
-from tools.ssh import ssh_execute
+def run_command(
+    server_id: str | None = None,
+    command: str = "",
+    server: dict | None = None
+):
 
+    if server is None:
 
-def run_command(command: str):
+        if not server_id:
+            return {
+                "success": False,
+                "error": "server_id or server configuration is required"
+            }
+
+        server = get_server(server_id)
+
     return ssh_execute(
-        host=SERVER_HOST,
-        username=SERVER_USERNAME,
-        command=command,
-        password=SERVER_PASSWORD or None,
-        pem_key_path=SERVER_PEM_KEY or None,
+        server=server,
+        command=command
     )
 
 
-def collect_server_health():
+def collect_server_health(
+    server_id: str | None = None,
+    server: dict | None = None
+):
     """
     Collects structured health information from a Linux or Windows server.
     """
@@ -164,7 +172,11 @@ print(json.dumps(result))
 PY
 """
 
-    linux_result = run_command(linux_command)
+    linux_result = run_command(
+    server_id=server_id,
+    server=server,
+    command=linux_command
+    )
 
     if linux_result["success"]:
 
@@ -238,7 +250,9 @@ powershell -Command "
 '''
 
     windows_result = run_command(
-        windows_command
+        server_id=server_id,
+        server=server,
+        command=windows_command
     )
 
     if windows_result["success"]:

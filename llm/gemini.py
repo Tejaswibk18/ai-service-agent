@@ -27,7 +27,7 @@ def generate_response(
 ):
 
     return client.models.generate_content(
-        model="gemini-3.5-flash",
+        model="gemini-3.5-flash-lite",
         contents=contents,
         config=types.GenerateContentConfig(
             tools=tools or [],

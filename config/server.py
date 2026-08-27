@@ -1,12 +1,34 @@
-import os
-
-from dotenv import load_dotenv
-
-
-load_dotenv()
+import json
+from pathlib import Path
 
 
-SERVER_HOST = os.getenv("SERVER_HOST")
-SERVER_USERNAME = os.getenv("SERVER_USERNAME")
-SERVER_PASSWORD = os.getenv("SERVER_PASSWORD")
-SERVER_PEM_KEY = os.getenv("SERVER_PEM_KEY")
+SERVERS_FILE = Path("config/servers.json")
+
+def load_servers():
+    with open(
+        SERVERS_FILE,
+        "r",
+        encoding="utf-8"
+    ) as file:
+        return json.load(file)
+
+
+def get_server(server_id):
+
+    servers = load_servers()
+
+    server = servers.get(server_id)
+
+    if not server:
+        raise ValueError(
+            f"Server '{server_id}' not found."
+        )
+
+    return server
+
+
+def list_servers():
+
+    servers = load_servers()
+
+    return list(servers.keys())

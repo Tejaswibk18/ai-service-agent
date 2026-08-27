@@ -2,11 +2,8 @@ import paramiko
 
 
 def ssh_execute(
-    host: str,
-    username: str,
-    command: str,
-    password: str | None = None,
-    pem_key_path: str | None = None,
+    server,
+    command: str
 ):
     ssh = paramiko.SSHClient()
 
@@ -16,35 +13,39 @@ def ssh_execute(
 
     try:
 
-        if pem_key_path:
+        auth_type = server["auth_type"]
+
+        if auth_type == "pem":
 
             private_key = paramiko.RSAKey.from_private_key_file(
-                pem_key_path
+                server["pem_key"]
             )
 
             ssh.connect(
-                hostname=host,
-                username=username,
+                hostname=server["host"],
+                username=server["username"],
                 pkey=private_key,
-                timeout=10,
+                timeout=10
             )
 
-        elif password:
+        elif auth_type == "password":
 
             ssh.connect(
-                hostname=host,
-                username=username,
-                password=password,
-                timeout=10,
+                hostname=server["host"],
+                username=server["username"],
+                password=server["password"],
+                timeout=10
             )
 
         else:
 
             raise ValueError(
-                "Password or PEM key is required."
+                f"Unsupported authentication type: {auth_type}"
             )
 
-        stdin, stdout, stderr = ssh.exec_command(command)
+        stdin, stdout, stderr = ssh.exec_command(
+            command
+        )
 
         output = stdout.read().decode().strip()
         error = stderr.read().decode().strip()
@@ -52,7 +53,7 @@ def ssh_execute(
         return {
             "success": True,
             "output": output,
-            "error": error,
+            "error": error
         }
 
     except Exception as exc:
@@ -60,7 +61,7 @@ def ssh_execute(
         return {
             "success": False,
             "output": "",
-            "error": str(exc),
+            "error": str(exc)
         }
 
     finally:

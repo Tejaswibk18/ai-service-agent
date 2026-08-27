@@ -1,0 +1,71 @@
+{
+    "query": "server health",
+    "plan": {
+        "intent": "server_health_check",
+        "steps": [
+            {
+                "tool": "collect_server_health",
+                "args": {
+                    "server_id": "server-01"
+                }
+            }
+        ]
+    },
+    "execution_results": [
+        {
+            "tool": "collect_server_health",
+            "result": {
+                "success": true,
+                "data": {
+                    "os": {
+                        "name": "Linux",
+                        "kernel": "7.0.0-1011-aws",
+                        "hostname": "ip-172-31-9-225"
+                    },
+                    "uptime": {
+                        "seconds": 2833.27,
+                        "minutes": 47.22,
+                        "hours": 0.79
+                    },
+                    "cpu": {
+                        "logical_cpus": 2,
+                        "load_average": {
+                            "1_min": 0.0,
+                            "5_min": 0.0,
+                            "15_min": 0.0
+                        }
+                    },
+                    "memory": {
+                        "total_mb": 909.53,
+                        "available_mb": 600.14,
+                        "used_mb": 309.39,
+                        "usage_percent": 34.02
+                    },
+                    "disk": [
+                        {
+                            "mount": "/",
+                            "total_gb": 6.71,
+                            "used_gb": 3.7,
+                            "free_gb": 2.99,
+                            "usage_percent": 55.18
+                        },
+                        {
+                            "mount": "/boot",
+                            "total_gb": 0.86,
+                            "used_gb": 0.2,
+                            "free_gb": 0.6,
+                            "usage_percent": 22.92
+                        },
+                        {
+                            "mount": "/boot/efi",
+                            "total_gb": 0.1,
+                            "used_gb": 0.01,
+                            "free_gb": 0.1,
+                            "usage_percent": 5.85
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
