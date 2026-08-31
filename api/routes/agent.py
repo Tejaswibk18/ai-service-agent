@@ -4,7 +4,6 @@ from api.schemas.agent import (
     AgentRequest,
     AgentResponse,
 )
-from api.auth import verify_api_key
 
 from agent.planner import create_plan
 from agent.executor import execute_plan
@@ -26,7 +25,7 @@ router = APIRouter(
     "/query",
     response_model=AgentResponse
 )
-def agent_query(request: AgentRequest,_: bool = Depends(verify_api_key)):
+def agent_query(request: AgentRequest):
 
     user_input = request.query
 
