@@ -714,15 +714,15 @@ async function sendQuery() {
     }
 
 
-    if (!apiKey) {
+    // if (!apiKey) {
 
-        setApiKey();
+    //     setApiKey();
 
-        if (!apiKey) {
+    //     if (!apiKey) {
 
-            return;
-        }
-    }
+    //         return;
+    //     }
+    // }
 
 
     sendQueryButton.disabled = true;
@@ -745,10 +745,7 @@ async function sendQuery() {
 
                     headers: {
                         "Content-Type":
-                            "application/json",
-
-                        "X-API-Key":
-                            apiKey
+                            "application/json"
                     },
 
                     body: JSON.stringify({
