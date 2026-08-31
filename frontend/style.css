@@ -266,13 +266,46 @@ body {
 }
 
 .connection-actions {
-    margin-top: 25px;
-
     display: flex;
-
     align-items: center;
+    gap: 16px;
+    margin-top: 24px;
+}
 
-    gap: 20px;
+.connection-actions button {
+    height: 48px;
+    min-width: 160px;
+    padding: 0 20px;
+
+    border: none;
+
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+
+    cursor: pointer;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    box-sizing: border-box;
+}
+
+.secondary-button,
+.primary-button,
+.danger-button {
+    background: #333;
+    color: white;
+}
+
+.connection-actions button:hover {
+    opacity: 0.85;
+}
+
+.connection-actions button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 
@@ -513,7 +546,6 @@ body {
 
 .response-header h3 {
     font-size: 17px;
-
     font-weight: 600;
 }
 
@@ -525,13 +557,11 @@ body {
 
     min-height: 120px;
 
-    padding: 20px;
-
-    white-space: pre-wrap;
+    padding: 22px 24px;
 
     overflow-wrap: anywhere;
 
-    line-height: 1.65;
+    line-height: 1.6;
 
     box-shadow:
         0 1px 3px rgba(0, 0, 0, 0.05);
@@ -539,7 +569,6 @@ body {
 
 .empty-response {
     color: #999999;
-
     font-size: 14px;
 }
 
@@ -701,30 +730,63 @@ body {
     color: var(--text);
 }
 
+
+/* Main heading */
+
 .markdown-content h1 {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 600;
+
     margin: 0 0 18px;
+
+    color: var(--text);
 }
+
+
+/* Section heading */
 
 .markdown-content h2 {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 600;
+
     margin: 24px 0 10px;
+
+    padding-bottom: 6px;
+
+    border-bottom: 1px solid var(--border);
+
+    color: var(--text);
 }
 
+
+/* Smaller heading */
+
 .markdown-content h3 {
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 600;
-    margin: 22px 0 8px;
+
+    margin: 20px 0 8px;
+
+    color: var(--text);
 }
+
+
+/* Paragraph */
 
 .markdown-content p {
     margin: 0 0 12px;
 }
 
+
+/* Lists */
+
 .markdown-content ul {
-    margin: 8px 0 16px 24px;
+    margin: 8px 0 16px 20px;
+    padding-left: 16px;
+}
+
+.markdown-content ol {
+    margin: 8px 0 16px 20px;
     padding-left: 16px;
 }
 
@@ -732,14 +794,35 @@ body {
     margin-bottom: 6px;
 }
 
+
+/* Bold text */
+
 .markdown-content strong {
     font-weight: 700;
 }
 
+
+/* Inline code */
+
 .markdown-content code {
     background: #eeeeee;
+
     border: 1px solid #dddddd;
+
     padding: 2px 5px;
+
     font-family: monospace;
+
     font-size: 13px;
+}
+
+
+/* Remove excessive spacing */
+
+.markdown-content > :first-child {
+    margin-top: 0;
+}
+
+.markdown-content > :last-child {
+    margin-bottom: 0;
 }

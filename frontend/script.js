@@ -1,42 +1,7 @@
 const API_BASE_URL = "http://127.0.0.1:8000";
 
 let apiKey = "";
-
-
-/* =========================================================
-   AUTHENTICATION TYPE
-========================================================= */
-
-const authType = document.getElementById("authType");
-
-const passwordGroup =
-    document.getElementById("passwordGroup");
-
-const pemGroup =
-    document.getElementById("pemGroup");
-
-const authenticationDetails =
-    document.getElementById("authenticationDetails");
-
-
-passwordGroup.style.display = "none";
-pemGroup.style.display = "none";
-
-
-authType.addEventListener("change", () => {
-
-    passwordGroup.style.display = "none";
-    pemGroup.style.display = "none";
-
-    if (authType.value === "password") {
-        passwordGroup.style.display = "flex";
-    }
-
-    if (authType.value === "pem") {
-        pemGroup.style.display = "flex";
-    }
-
-});
+let connectionVerified = false;
 
 
 /* =========================================================
@@ -61,7 +26,7 @@ function setApiKey() {
 
 
 /* =========================================================
-   CONNECTION
+   DOM REFERENCES
 ========================================================= */
 
 const connectButton =
@@ -70,116 +35,309 @@ const connectButton =
 const connectionStatus =
     document.getElementById("connectionStatus");
 
+const addServerButton =
+    document.getElementById("addServerButton");
 
-connectButton.addEventListener("click", connectToServer);
+const addServerPanel =
+    document.getElementById("addServerPanel");
 
+const cancelAddServerButton =
+    document.getElementById("cancelAddServerButton");
+
+const saveServerButton =
+    document.getElementById("saveServerButton");
+
+const removeServerButton =
+    document.getElementById(
+        "removeServerButton"
+    );
+
+const testConnectionButton =
+    document.getElementById("testConnectionButton");
+
+const newAuthType =
+    document.getElementById("newServerAuthType");
+
+const newPasswordGroup =
+    document.getElementById("newPasswordGroup");
+
+const newPemGroup =
+    document.getElementById("newPemGroup");
+
+
+/* =========================================================
+   CONNECTION EVENTS
+========================================================= */
+
+connectButton.addEventListener(
+    "click",
+    connectToServer
+);
+
+
+addServerButton.addEventListener(
+    "click",
+    () => {
+
+        addServerPanel.style.display =
+            "block";
+
+    }
+);
+
+removeServerButton.addEventListener(
+    "click",
+    removeServer
+);
+
+cancelAddServerButton.addEventListener(
+    "click",
+    () => {
+
+        addServerPanel.style.display =
+            "none";
+
+    }
+);
+
+testConnectionButton.addEventListener(
+    "click",
+    testConnection
+);
+
+saveServerButton.addEventListener(
+    "click",
+    saveServer
+);
+
+
+/* =========================================================
+   REMOVE SERVER
+========================================================= */
+
+async function removeServer() {
+
+    const serverSelect =
+        document.getElementById(
+            "serverSelect"
+        );
+
+    const serverId =
+        serverSelect.value;
+
+
+    if (!serverId) {
+
+        alert(
+            "Please select a server to remove."
+        );
+
+        return;
+    }
+
+
+    const confirmed =
+        confirm(
+            `Are you sure you want to remove "${serverId}"?`
+        );
+
+
+    if (!confirmed) {
+
+        return;
+    }
+
+
+    removeServerButton.disabled =
+        true;
+
+    removeServerButton.textContent =
+        "REMOVING...";
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/server/${encodeURIComponent(serverId)}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                "Unable to remove server"
+            );
+        }
+
+
+        alert(
+            "Server removed successfully."
+        );
+
+
+        clearServerInformation();
+
+
+        updateConnectionStatus(
+            "Not connected",
+            false
+        );
+
+
+        await loadServers();
+
+
+    } catch (error) {
+
+        console.error(
+            "Failed to remove server:",
+            error
+        );
+
+
+        alert(
+            error.message
+        );
+
+
+    } finally {
+
+        removeServerButton.disabled =
+            false;
+
+        removeServerButton.textContent =
+            "REMOVE SERVER";
+    }
+}
+
+
+/* =========================================================
+   ADD SERVER VALIDATION
+========================================================= */
+
+function invalidateConnectionTest() {
+
+    connectionVerified = false;
+
+    saveServerButton.disabled = true;
+}
+
+
+/* =========================================================
+   ADD SERVER AUTHENTICATION
+========================================================= */
+
+newAuthType.addEventListener(
+    "change",
+    () => {
+
+        /*
+         * Authentication changed.
+         * Previous connection test is no longer valid.
+         */
+
+        invalidateConnectionTest();
+
+
+        newPasswordGroup.style.display =
+            "none";
+
+        newPemGroup.style.display =
+            "none";
+
+
+        if (newAuthType.value === "password") {
+
+            newPasswordGroup.style.display =
+                "flex";
+
+        }
+
+
+        if (newAuthType.value === "pem") {
+
+            newPemGroup.style.display =
+                "flex";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   INVALIDATE TEST WHEN SERVER DETAILS CHANGE
+========================================================= */
+
+document
+    .getElementById("newServerId")
+    .addEventListener(
+        "input",
+        invalidateConnectionTest
+    );
+
+
+document
+    .getElementById("newServerHost")
+    .addEventListener(
+        "input",
+        invalidateConnectionTest
+    );
+
+
+document
+    .getElementById("newServerUsername")
+    .addEventListener(
+        "input",
+        invalidateConnectionTest
+    );
+
+
+document
+    .getElementById("newServerPassword")
+    .addEventListener(
+        "input",
+        invalidateConnectionTest
+    );
+
+
+document
+    .getElementById("newServerPem")
+    .addEventListener(
+        "change",
+        invalidateConnectionTest
+    );
+
+
+/* =========================================================
+   CONNECTION
+========================================================= */
 
 async function connectToServer() {
 
-    const ip =
-        document.getElementById("serverIp").value.trim();
-
-    const username =
-        document.getElementById("username").value.trim();
-
-    const selectedAuth =
-        document.getElementById("authType").value;
+    const serverId =
+        document
+            .getElementById("serverSelect")
+            .value;
 
 
-    if (!ip) {
+    if (!serverId) {
 
         updateConnectionStatus(
-            "Enter server IP address",
+            "Select a server",
             true
         );
 
         return;
-    }
-
-
-    if (!username) {
-
-        updateConnectionStatus(
-            "Enter username",
-            true
-        );
-
-        return;
-    }
-
-
-    if (!selectedAuth) {
-
-        updateConnectionStatus(
-            "Select authentication type",
-            true
-        );
-
-        return;
-    }
-
-
-    if (!apiKey) {
-
-        setApiKey();
-
-        if (!apiKey) {
-            return;
-        }
-    }
-
-
-    const credentials = {
-
-        ip: ip,
-
-        username: username,
-
-        auth_type: selectedAuth
-
-    };
-
-
-    if (selectedAuth === "password") {
-
-        const password =
-            document
-                .getElementById("serverPassword")
-                .value;
-
-        if (!password) {
-
-            updateConnectionStatus(
-                "Enter password",
-                true
-            );
-
-            return;
-        }
-
-        credentials.password = password;
-    }
-
-
-    if (selectedAuth === "pem") {
-
-        const pemKey =
-            document
-                .getElementById("pemKey")
-                .value
-                .trim();
-
-        if (!pemKey) {
-
-            updateConnectionStatus(
-                "Enter PEM key path",
-                true
-            );
-
-            return;
-        }
-
-        credentials.pem_key = pemKey;
     }
 
 
@@ -188,22 +346,26 @@ async function connectToServer() {
 
     try {
 
-        const response = await fetch(
-            `${API_BASE_URL}/server/connect`,
-            {
-                method: "POST",
+        const response =
+            await fetch(
+                `${API_BASE_URL}/server/connect`,
+                {
+                    method: "POST",
 
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-API-Key": apiKey
-                },
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-                body: JSON.stringify(credentials)
-            }
-        );
+                    body: JSON.stringify({
+                        server_id: serverId
+                    })
+                }
+            );
 
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
 
         if (!response.ok) {
@@ -231,6 +393,11 @@ async function connectToServer() {
 
     } catch (error) {
 
+        console.error(
+            "Server connection failed:",
+            error
+        );
+
         updateConnectionStatus(
             error.message,
             true
@@ -240,9 +407,9 @@ async function connectToServer() {
 
         connectButton.disabled = false;
 
-        connectButton.textContent = "CONNECT";
+        connectButton.textContent =
+            "CONNECT";
     }
-
 }
 
 
@@ -355,6 +522,7 @@ function formatUptime(seconds) {
         seconds === undefined ||
         seconds === null
     ) {
+
         return "—";
     }
 
@@ -362,15 +530,18 @@ function formatUptime(seconds) {
     const totalSeconds =
         Math.floor(seconds);
 
+
     const days =
         Math.floor(
             totalSeconds / 86400
         );
 
+
     const hours =
         Math.floor(
             (totalSeconds % 86400) / 3600
         );
+
 
     const minutes =
         Math.floor(
@@ -397,6 +568,7 @@ function formatUptime(seconds) {
 function formatCpu(cpu) {
 
     if (!cpu) {
+
         return "—";
     }
 
@@ -437,6 +609,7 @@ function formatCpu(cpu) {
 function formatMemory(memory) {
 
     if (!memory) {
+
         return "—";
     }
 
@@ -456,11 +629,13 @@ function formatMemory(memory) {
 function formatDisk(disks) {
 
     if (!Array.isArray(disks)) {
+
         return "—";
     }
 
 
     if (disks.length === 0) {
+
         return "—";
     }
 
@@ -478,6 +653,7 @@ function formatDisk(disks) {
 
 
     if (validUsage.length === 0) {
+
         return "—";
     }
 
@@ -543,6 +719,7 @@ async function sendQuery() {
         setApiKey();
 
         if (!apiKey) {
+
             return;
         }
     }
@@ -612,6 +789,7 @@ async function sendQuery() {
 
 }
 
+
 /* =========================================================
    MARKDOWN FORMATTER
 ========================================================= */
@@ -622,80 +800,68 @@ function markdownToHtml(markdown) {
         return "";
     }
 
-
     let html = markdown;
 
-
-    /*
-     * Escape HTML first
-     * so AI output cannot directly inject HTML.
-     */
-
+    // Escape HTML first
     html = html
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
 
 
-    /*
-     * Headings
-     */
-
+    // Code blocks
     html = html.replace(
-        /^### (.+)$/gm,
+        /```([\s\S]*?)```/g,
+        "<pre><code>$1</code></pre>"
+    );
+
+
+    // Headings
+    html = html.replace(
+        /^### (.*)$/gm,
         "<h3>$1</h3>"
     );
 
     html = html.replace(
-        /^## (.+)$/gm,
+        /^## (.*)$/gm,
         "<h2>$1</h2>"
     );
 
     html = html.replace(
-        /^# (.+)$/gm,
+        /^# (.*)$/gm,
         "<h1>$1</h1>"
     );
 
 
-    /*
-     * Bold
-     */
-
+    // Bold
     html = html.replace(
-        /\*\*(.+?)\*\*/g,
+        /\*\*(.*?)\*\*/g,
         "<strong>$1</strong>"
     );
 
 
-    /*
-     * Inline code
-     */
-
+    // Inline code
     html = html.replace(
         /`([^`]+)`/g,
         "<code>$1</code>"
     );
 
 
-    /*
-     * Bullet points
-     */
-
+    // Bullet points
     html = html.replace(
-        /^\* (.+)$/gm,
+        /^\s*[-*] (.*)$/gm,
         "<li>$1</li>"
     );
 
+
+    // Wrap consecutive list items
     html = html.replace(
-        /(<li>.*<\/li>\n?)+/g,
-        "<ul>$&</ul>"
+        /((?:<li>.*<\/li>\s*)+)/g,
+        "<ul>$1</ul>"
     );
 
 
-    /*
-     * Paragraphs / line breaks
-     */
-
+    // Paragraphs / line breaks
     html = html.replace(
         /\n{2,}/g,
         "</p><p>"
@@ -707,34 +873,30 @@ function markdownToHtml(markdown) {
     );
 
 
-    /*
-     * Avoid wrapping block elements unnecessarily
-     */
-
+    // Remove <br> immediately around block elements
     html = html.replace(
-        /<p>(<h[1-3]>)/g,
+        /<br>\s*(<h[1-3]>)/g,
         "$1"
     );
 
     html = html.replace(
-        /(<\/h[1-3]>)<\/p>/g,
+        /(<\/h[1-3]>)\s*<br>/g,
         "$1"
     );
 
     html = html.replace(
-        /<p>(<ul>)/g,
+        /<br>\s*(<ul>)/g,
         "$1"
     );
 
     html = html.replace(
-        /(<\/ul>)<\/p>/g,
+        /(<\/ul>)\s*<br>/g,
         "$1"
     );
 
 
     return `<div class="markdown-content">${html}</div>`;
 }
-
 
 
 /* =========================================================
@@ -744,25 +906,30 @@ function markdownToHtml(markdown) {
 function displayAgentResponse(data) {
 
     const responseBox =
-        document.getElementById("agentResponse");
+        document.getElementById(
+            "agentResponse"
+        );
+
 
     const analysisBox =
-        document.getElementById("analysisContent");
+        document.getElementById(
+            "analysisContent"
+        );
 
-
-    /*
-     * Agent Response
-     */
 
     if (data.response) {
 
         responseBox.innerHTML =
-            markdownToHtml(data.response);
+            markdownToHtml(
+                data.response
+            );
 
     } else if (data.message) {
 
         responseBox.innerHTML =
-            markdownToHtml(data.message);
+            markdownToHtml(
+                data.message
+            );
 
     } else {
 
@@ -772,14 +939,12 @@ function displayAgentResponse(data) {
     }
 
 
-    /*
-     * Health Analysis
-     */
-
     if (data.analysis) {
 
         analysisBox.innerHTML =
-            markdownToHtml(data.analysis);
+            markdownToHtml(
+                data.analysis
+            );
 
     } else {
 
@@ -813,6 +978,7 @@ async function refreshServer() {
         setApiKey();
 
         if (!apiKey) {
+
             return;
         }
     }
@@ -867,15 +1033,611 @@ async function refreshServer() {
 
 
 /* =========================================================
+   TEST CONNECTION
+========================================================= */
+
+async function testConnection() {
+
+    console.log("TEST CONNECTION CLICKED");
+
+    const serverId =
+        document.getElementById("newServerId").value.trim();
+
+    const host =
+        document.getElementById("newServerHost").value.trim();
+
+    const username =
+        document.getElementById("newServerUsername").value.trim();
+
+    const authType =
+        document.getElementById("newServerAuthType").value;
+
+
+    console.log({
+        serverId,
+        host,
+        username,
+        authType
+    });
+
+
+    if (
+        !serverId ||
+        !host ||
+        !username ||
+        !authType
+    ) {
+
+        alert(
+            "Please fill all required fields."
+        );
+
+        return;
+    }
+
+
+    const formData = new FormData();
+
+
+    formData.append(
+        "server_id",
+        serverId
+    );
+
+    formData.append(
+        "host",
+        host
+    );
+
+    formData.append(
+        "username",
+        username
+    );
+
+    formData.append(
+        "auth_type",
+        authType
+    );
+
+
+    // =============================================
+    // PASSWORD
+    // =============================================
+
+    if (authType === "password") {
+
+        const password =
+            document
+                .getElementById("newServerPassword")
+                .value;
+
+
+        if (!password) {
+
+            alert(
+                "Password is required."
+            );
+
+            return;
+        }
+
+
+        formData.append(
+            "password",
+            password
+        );
+    }
+
+
+    // =============================================
+    // PEM
+    // =============================================
+
+    if (authType === "pem") {
+
+        const pemInput =
+            document.getElementById(
+                "newServerPem"
+            );
+
+
+        if (!pemInput) {
+
+            alert(
+                "PEM input element not found."
+            );
+
+            return;
+        }
+
+
+        const pemFile =
+            pemInput.files[0];
+
+
+        console.log(
+            "Selected PEM file:",
+            pemFile
+        );
+
+
+        if (!pemFile) {
+
+            alert(
+                "Please select a PEM file."
+            );
+
+            return;
+        }
+
+
+        if (
+            !pemFile.name
+                .toLowerCase()
+                .endsWith(".pem")
+        ) {
+
+            alert(
+                "Only .pem files are allowed."
+            );
+
+            return;
+        }
+
+
+        formData.append(
+            "pem_file",
+            pemFile
+        );
+    }
+
+
+    // =============================================
+    // BUTTON STATE
+    // =============================================
+
+    testConnectionButton.disabled =
+        true;
+
+    testConnectionButton.textContent =
+        "TESTING...";
+
+
+    connectionVerified =
+        false;
+
+    saveServerButton.disabled =
+        true;
+
+
+    // =============================================
+    // API CALL
+    // =============================================
+
+    try {
+
+        console.log(
+            "Sending request to:",
+            `${API_BASE_URL}/server/test-connection`
+        );
+
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/server/test-connection`,
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+
+
+        console.log(
+            "HTTP status:",
+            response.status
+        );
+
+
+        const data =
+            await response.json();
+
+
+        console.log(
+            "Response:",
+            data
+        );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                "Connection failed"
+            );
+        }
+
+
+        connectionVerified =
+            true;
+
+
+        saveServerButton.disabled =
+            false;
+
+
+        alert(
+            "Connection successful. You can now save the server."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Connection test failed:",
+            error
+        );
+
+
+        alert(
+            `Connection failed: ${error.message}`
+        );
+
+
+    } finally {
+
+        testConnectionButton.disabled =
+            false;
+
+        testConnectionButton.textContent =
+            "TEST CONNECTION";
+    }
+}
+
+
+/* =========================================================
+   ADD SERVER
+========================================================= */
+
+async function saveServer() {
+
+    if (!connectionVerified) {
+
+        alert(
+            "Please test the server connection first."
+        );
+
+        return;
+    }
+
+
+    const serverId =
+        document
+            .getElementById("newServerId")
+            .value
+            .trim();
+
+    const host =
+        document
+            .getElementById("newServerHost")
+            .value
+            .trim();
+
+    const username =
+        document
+            .getElementById("newServerUsername")
+            .value
+            .trim();
+
+    const authType =
+        document
+            .getElementById("newServerAuthType")
+            .value;
+
+
+    if (
+        !serverId ||
+        !host ||
+        !username ||
+        !authType
+    ) {
+
+        alert(
+            "Please fill all required fields."
+        );
+
+        return;
+    }
+
+
+    const formData =
+        new FormData();
+
+
+    formData.append(
+        "server_id",
+        serverId
+    );
+
+    formData.append(
+        "host",
+        host
+    );
+
+    formData.append(
+        "username",
+        username
+    );
+
+    formData.append(
+        "auth_type",
+        authType
+    );
+
+
+    // ---------------------------------------------
+    // PASSWORD
+    // ---------------------------------------------
+
+    if (authType === "password") {
+
+        const password =
+            document
+                .getElementById(
+                    "newServerPassword"
+                )
+                .value;
+
+
+        if (!password) {
+
+            alert(
+                "Password is required."
+            );
+
+            return;
+        }
+
+
+        formData.append(
+            "password",
+            password
+        );
+    }
+
+
+    // ---------------------------------------------
+    // PEM
+    // ---------------------------------------------
+
+    if (authType === "pem") {
+
+        const pemInput =
+            document.getElementById(
+                "newServerPem"
+            );
+
+
+        const pemFile =
+            pemInput.files[0];
+
+
+        if (!pemFile) {
+
+            alert(
+                "Please select a PEM file."
+            );
+
+            return;
+        }
+
+
+        if (
+            !pemFile.name
+                .toLowerCase()
+                .endsWith(".pem")
+        ) {
+
+            alert(
+                "Only .pem files are allowed."
+            );
+
+            return;
+        }
+
+
+        formData.append(
+            "pem_file",
+            pemFile
+        );
+    }
+
+
+    saveServerButton.disabled =
+        true;
+
+    saveServerButton.textContent =
+        "SAVING...";
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/server/add`,
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                "Unable to add server"
+            );
+        }
+
+
+        alert(
+            "Server added successfully."
+        );
+
+
+        addServerPanel.style.display =
+            "none";
+
+
+        clearAddServerForm();
+
+
+        await loadServers();
+
+
+        document.getElementById(
+            "serverSelect"
+        ).value =
+            serverId;
+
+
+    } catch (error) {
+
+        console.error(
+            "Failed to add server:",
+            error
+        );
+
+
+        alert(
+            `Unable to add server: ${error.message}`
+        );
+
+
+    } finally {
+
+        saveServerButton.disabled =
+            false;
+
+        saveServerButton.textContent =
+            "SAVE SERVER";
+    }
+}
+
+/* =========================================================
+   CLEAR ADD SERVER FORM
+========================================================= */
+
+function clearAddServerForm() {
+
+    document.getElementById(
+        "newServerId"
+    ).value = "";
+
+
+    document.getElementById(
+        "newServerHost"
+    ).value = "";
+
+
+    document.getElementById(
+        "newServerUsername"
+    ).value = "";
+
+
+    document.getElementById(
+        "newServerAuthType"
+    ).value = "";
+
+
+    document.getElementById(
+        "newServerPassword"
+    ).value = "";
+
+
+    document.getElementById(
+        "newServerPem"
+    ).value = "";
+
+
+    newPasswordGroup.style.display =
+        "none";
+
+
+    newPemGroup.style.display =
+        "none";
+
+
+    connectionVerified = false;
+
+    saveServerButton.disabled =
+        true;
+}
+
+/* =========================================================
+   CLEAR SERVER INFORMATION
+========================================================= */
+
+function clearServerInformation() {
+
+    document.getElementById(
+        "serverOs"
+    ).textContent = "—";
+
+
+    document.getElementById(
+        "serverHostname"
+    ).textContent = "—";
+
+
+    document.getElementById(
+        "serverKernel"
+    ).textContent = "—";
+
+
+    document.getElementById(
+        "serverUptime"
+    ).textContent = "—";
+
+
+    document.getElementById(
+        "serverCpu"
+    ).textContent = "—";
+
+
+    document.getElementById(
+        "serverMemory"
+    ).textContent = "—";
+
+
+    document.getElementById(
+        "serverDisk"
+    ).textContent = "—";
+
+
+    document.getElementById(
+        "serverHealth"
+    ).textContent = "—";
+}
+
+
+/* =========================================================
    UI HELPERS
 ========================================================= */
 
 function setConnectingState() {
 
-    connectButton.disabled = true;
+    connectButton.disabled =
+        true;
+
 
     connectButton.textContent =
         "CONNECTING...";
+
 
     updateConnectionStatus(
         "Connecting...",
@@ -892,6 +1654,7 @@ function updateConnectionStatus(
     connectionStatus.textContent =
         message;
 
+
     connectionStatus.style.color =
         error
             ? "#d71920"
@@ -902,6 +1665,7 @@ function updateConnectionStatus(
 function getHealthClass(status) {
 
     if (!status) {
+
         return "";
     }
 
@@ -910,20 +1674,135 @@ function getHealthClass(status) {
         status.toLowerCase();
 
 
-    if (value.includes("healthy")) {
+    if (
+        value.includes("healthy")
+    ) {
+
         return "health-healthy";
     }
 
 
-    if (value.includes("warning")) {
+    if (
+        value.includes("warning")
+    ) {
+
         return "health-warning";
     }
 
 
-    if (value.includes("critical")) {
+    if (
+        value.includes("critical")
+    ) {
+
         return "health-critical";
     }
 
 
     return "";
 }
+
+
+/* =========================================================
+   LOAD SERVERS
+========================================================= */
+
+async function loadServers() {
+
+    const serverSelect =
+        document.getElementById(
+            "serverSelect"
+        );
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/server/list`,
+                {
+                    method: "GET"
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                "Unable to load servers"
+            );
+        }
+
+
+        if (
+            !data.servers ||
+            !Array.isArray(data.servers)
+        ) {
+
+            throw new Error(
+                "Invalid server list received"
+            );
+        }
+
+
+        serverSelect.innerHTML =
+            '<option value="">Select a server</option>';
+
+
+        data.servers.forEach(
+            serverId => {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    serverId;
+
+
+                option.textContent =
+                    serverId;
+
+
+                serverSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Failed to load servers:",
+            error
+        );
+
+
+        updateConnectionStatus(
+            "Unable to load servers",
+            true
+        );
+    }
+}
+
+
+/* =========================================================
+   PAGE LOAD
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        loadServers();
+
+    }
+);

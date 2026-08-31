@@ -2,6 +2,38 @@
 .venv/
 __pycache__/
 config/servers.json
-output/
+outputs/
 memory/server_memory.json
 test_rag.py
+credentials/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Environment
+.env
+.env.*
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Server credentials
+credentials/
+*.pem
+*.key
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

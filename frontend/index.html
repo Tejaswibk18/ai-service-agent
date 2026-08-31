@@ -41,7 +41,7 @@
                 <h1>Server Connection</h1>
 
                 <p>
-                    Connect to a server to view system information
+                    Select a configured server to view system information
                     and interact with the AI agent.
                 </p>
 
@@ -50,46 +50,130 @@
 
             <div class="connection-form">
 
-                <!-- IP -->
                 <div class="form-group">
 
-                    <label for="serverIp">
+                    <label for="serverSelect">
+                        Server
+                    </label>
+
+                    <select id="serverSelect">
+
+                        <option value="">
+                            Select a server
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div class="connection-actions">
+
+                <button
+                    class="secondary-button"
+                    id="addServerButton"
+                >
+                    + ADD SERVER
+                </button>
+
+                <button
+                    class="primary-button"
+                    id="connectButton"
+                >
+                    CONNECT
+                </button>
+
+                <button
+                    class="danger-button"
+                    id="removeServerButton"
+                >
+                    REMOVE SERVER
+                </button>
+
+                <div
+                    class="connection-status"
+                    id="connectionStatus"
+                >
+                    Not connected
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section
+            class="add-server-panel"
+            id="addServerPanel"
+            style="display: none;"
+        >
+
+            <div class="section-title">
+
+                <h2>Add Server</h2>
+
+                <p>
+                    Add a server to the managed server list.
+                </p>
+
+            </div>
+
+
+            <div class="connection-form">
+
+                <div class="form-group">
+
+                    <label for="newServerId">
+                        Server Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="newServerId"
+                        placeholder="server-03"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="newServerHost">
                         IP Address
                     </label>
 
                     <input
                         type="text"
-                        id="serverIp"
-                        placeholder="IP Address"
+                        id="newServerHost"
+                        placeholder="192.168.1.100"
                     >
 
                 </div>
 
 
-                <!-- Username -->
                 <div class="form-group">
 
-                    <label for="username">
+                    <label for="newServerUsername">
                         Username
                     </label>
 
                     <input
                         type="text"
-                        id="username"
-                        placeholder="Username"
+                        id="newServerUsername"
+                        placeholder="ubuntu"
                     >
 
                 </div>
 
 
-                <!-- Authentication -->
                 <div class="form-group">
 
-                    <label for="authType">
+                    <label for="newServerAuthType">
                         Authentication
                     </label>
 
-                    <select id="authType">
+                    <select id="newServerAuthType">
 
                         <option value="">
                             Select authentication
@@ -107,28 +191,20 @@
 
                 </div>
 
-            </div>
-
-
-            <!-- Authentication details -->
-
-            <div
-                class="authentication-details"
-                id="authenticationDetails"
-            >
 
                 <div
                     class="form-group"
-                    id="passwordGroup"
+                    id="newPasswordGroup"
+                    style="display: none;"
                 >
 
-                    <label for="serverPassword">
+                    <label for="newServerPassword">
                         Password
                     </label>
 
                     <input
                         type="password"
-                        id="serverPassword"
+                        id="newServerPassword"
                         placeholder="Password"
                     >
 
@@ -137,17 +213,18 @@
 
                 <div
                     class="form-group"
-                    id="pemGroup"
+                    id="newPemGroup"
+                    style="display: none;"
                 >
 
-                    <label for="pemKey">
-                        PEM Key
+                    <label for="newServerPem">
+                        PEM File
                     </label>
 
                     <input
-                        type="text"
-                        id="pemKey"
-                        placeholder="Path to PEM key"
+                        type="file"
+                        id="newServerPem"
+                        accept=".pem"
                     >
 
                 </div>
@@ -159,22 +236,29 @@
 
                 <button
                     class="primary-button"
-                    id="connectButton"
+                    id="testConnectionButton"
                 >
-                    CONNECT
+                    TEST CONNECTION
                 </button>
 
-                <div
-                    class="connection-status"
-                    id="connectionStatus"
+                <button
+                    class="primary-button"
+                    id="saveServerButton"
+                    disabled
                 >
-                    Not connected
-                </div>
+                    SAVE SERVER
+                </button>
+
+                <button
+                    class="secondary-button"
+                    id="cancelAddServerButton"
+                >
+                    CANCEL
+                </button>
 
             </div>
 
         </section>
-
 
         <!-- ================= SERVER INFORMATION ================= -->
 

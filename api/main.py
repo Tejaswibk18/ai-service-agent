@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.routes.agent import router as agent_router
 from api.routes.server import router as server_router
 
+from database.connection import engine
+from database.models import Base
 
 app = FastAPI(
     title="AI Server Agent",
@@ -11,6 +13,9 @@ app = FastAPI(
     version="1.0.0"
 )
 
+Base.metadata.create_all(
+    bind=engine
+)
 
 app.add_middleware(
     CORSMiddleware,
