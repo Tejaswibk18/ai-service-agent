@@ -1,6 +1,6 @@
+const API_BASE_URL = "http://127.0.0.1:8000";
 let apiKey = "";
 let connectionVerified = false;
-
 
 /* =========================================================
    API KEY
@@ -78,51 +78,37 @@ const newPemGroup =
    CONNECTION EVENTS
 ========================================================= */
 
-connectButton.addEventListener(
-    "click",
-    connectToServer
-);
+if (connectButton) {
+    connectButton.addEventListener("click", connectToServer);
+}
 
+if (addServerButton) {
+    addServerButton.addEventListener("click", () => {
+        addServerPanel.style.display = "block";
+    });
+}
 
-addServerButton.addEventListener(
-    "click",
-    () => {
+if (removeServerButton) {
+    removeServerButton.addEventListener("click", removeServer);
+}
 
-        addServerPanel.style.display =
-            "block";
+if (cancelAddServerButton) {
+    cancelAddServerButton.addEventListener("click", () => {
+        addServerPanel.style.display = "none";
+    });
+}
 
-    }
-);
+if (testConnectionButton) {
+    testConnectionButton.addEventListener("click", testConnection);
+}
 
-removeServerButton.addEventListener(
-    "click",
-    removeServer
-);
+if (saveServerButton) {
+    saveServerButton.addEventListener("click", saveServer);
+}
 
-cancelAddServerButton.addEventListener(
-    "click",
-    () => {
-
-        addServerPanel.style.display =
-            "none";
-
-    }
-);
-
-testConnectionButton.addEventListener(
-    "click",
-    testConnection
-);
-
-saveServerButton.addEventListener(
-    "click",
-    saveServer
-);
-
-apiKeyLoginButton.addEventListener(
-    "click",
-    validateApiKey
-);
+if (apiKeyLoginButton) {
+    apiKeyLoginButton.addEventListener("click", validateApiKey);
+}
 
 
 /* =========================================================
