@@ -292,6 +292,20 @@ newAuthType.addEventListener(
     }
 );
 
+// Initialize fields on page load
+if (newAuthType.value === "password") {
+
+    newPasswordGroup.style.display = "flex";
+    newPemGroup.style.display = "none";
+
+}
+else if (newAuthType.value === "pem") {
+
+    newPasswordGroup.style.display = "none";
+    newPemGroup.style.display = "flex";
+
+}
+
 
 /* =========================================================
    INVALIDATE TEST WHEN SERVER DETAILS CHANGE
