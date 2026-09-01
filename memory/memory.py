@@ -58,17 +58,3 @@ def get_recent_memory(limit=5):
         memory = json.load(file)
 
     return memory[-limit:]
-
-def get_recent_memory(limit=5):
-
-    if not MEMORY_FILE.exists():
-        return []
-
-    with open(
-        MEMORY_FILE,
-        "r",
-        encoding="utf-8"
-    ) as file:
-        memory = json.load(file)
-
-    return memory[-limit:]
