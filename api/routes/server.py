@@ -19,10 +19,10 @@ from config.server import (
     delete_server
 )
 
-
 router = APIRouter(
     prefix="/server",
-    tags=["Server"]
+    tags=["Server"],
+    dependencies=[Depends(verify_api_key)]
 )
 
 

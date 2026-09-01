@@ -826,3 +826,63 @@ body {
 .markdown-content > :last-child {
     margin-bottom: 0;
 }
+
+.api-key-overlay {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 0, 0, 0.65);
+
+    z-index: 9999;
+}
+
+
+.api-key-card {
+    width: 360px;
+
+    padding: 30px;
+
+    background: white;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.25);
+
+    text-align: center;
+}
+
+
+.api-key-card h2 {
+    margin-bottom: 10px;
+}
+
+
+.api-key-card input {
+    width: 100%;
+
+    padding: 12px;
+
+    margin-top: 15px;
+    margin-bottom: 15px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #ccc;
+
+    border-radius: 6px;
+}
+
+
+.api-key-error {
+    margin-top: 10px;
+
+    color: #d32f2f;
+
+    font-size: 14px;
+}
+

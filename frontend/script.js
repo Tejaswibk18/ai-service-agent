@@ -1,5 +1,3 @@
-const API_BASE_URL = "";
-
 let apiKey = "";
 let connectionVerified = false;
 
@@ -13,15 +11,12 @@ function setApiKey() {
     const key = prompt("Enter your API key:");
 
     if (!key) {
-        return;
+        return false;
     }
 
     apiKey = key.trim();
 
-    updateConnectionStatus(
-        "API key configured",
-        false
-    );
+    return true;
 }
 
 
@@ -51,6 +46,20 @@ const removeServerButton =
     document.getElementById(
         "removeServerButton"
     );
+
+const apiKeyOverlay =
+    document.getElementById("apiKeyOverlay");
+
+const apiKeyInput =
+    document.getElementById("apiKeyInput");
+
+const apiKeyLoginButton =
+    document.getElementById(
+        "apiKeyLoginButton"
+    );
+
+const apiKeyError =
+    document.getElementById("apiKeyError");
 
 const testConnectionButton =
     document.getElementById("testConnectionButton");
@@ -110,6 +119,11 @@ saveServerButton.addEventListener(
     saveServer
 );
 
+apiKeyLoginButton.addEventListener(
+    "click",
+    validateApiKey
+);
+
 
 /* =========================================================
    REMOVE SERVER
@@ -161,7 +175,12 @@ async function removeServer() {
             await fetch(
                 `${API_BASE_URL}/server/${encodeURIComponent(serverId)}`,
                 {
-                    method: "DELETE"
+                    method: "DELETE",
+
+                    headers: {
+                        "X-API-Key":
+                            apiKey
+                    }
                 }
             );
 
@@ -354,7 +373,9 @@ async function connectToServer() {
 
                     headers: {
                         "Content-Type":
-                            "application/json"
+                            "application/json",
+                        "X-API-Key":
+                            apiKey
                     },
 
                     body: JSON.stringify({
@@ -745,7 +766,9 @@ async function sendQuery() {
 
                     headers: {
                         "Content-Type":
-                            "application/json"
+                            "application/json",
+                        "X-API-Key":
+                            apiKey
                     },
 
                     body: JSON.stringify({
@@ -1224,6 +1247,12 @@ async function testConnection() {
                 `${API_BASE_URL}/server/test-connection`,
                 {
                     method: "POST",
+
+                    headers: {
+                        "X-API-Key":
+                            apiKey
+                    },
+
                     body: formData
                 }
             );
@@ -1463,6 +1492,12 @@ async function saveServer() {
                 `${API_BASE_URL}/server/add`,
                 {
                     method: "POST",
+
+                    headers: {
+                        "X-API-Key":
+                            apiKey
+                    },
+
                     body: formData
                 }
             );
@@ -1717,7 +1752,12 @@ async function loadServers() {
             await fetch(
                 `${API_BASE_URL}/server/list`,
                 {
-                    method: "GET"
+                    method: "GET",
+
+                    headers: {
+                        "X-API-Key":
+                            apiKey
+                    }
                 }
             );
 
@@ -1792,14 +1832,91 @@ async function loadServers() {
 
 
 /* =========================================================
-   PAGE LOAD
+   VALIDATE API KEY
 ========================================================= */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
+async function validateApiKey() {
+
+    const key =
+        apiKeyInput.value.trim();
+
+    if (!key) {
+
+        apiKeyError.textContent =
+            "Please enter your API key.";
+
+        return;
+    }
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/server/list`,
+                {
+                    method: "GET",
+
+                    headers: {
+                        "X-API-Key": key
+                    }
+                }
+            );
+
+        if (response.status === 401) {
+
+            apiKeyError.textContent =
+                "Invalid API key.";
+
+            return;
+        }
+
+        if (!response.ok) {
+
+            apiKeyError.textContent =
+                "Unable to authenticate.";
+
+            return;
+        }
+
+        apiKey = key;
+
+        sessionStorage.setItem(
+            "agentApiKey",
+            apiKey
+        );
+
+        apiKeyOverlay.style.display =
+            "none";
+
+        apiKeyError.textContent = "";
 
         loadServers();
 
+    } catch (error) {
+
+        console.error(error);
+
+        apiKeyError.textContent =
+            "Unable to connect to server.";
     }
-);
+}
+
+
+/* =========================================================
+   RESTORE API KEY
+========================================================= */
+
+const savedApiKey =
+    sessionStorage.getItem(
+        "agentApiKey"
+    );
+
+if (savedApiKey) {
+
+    apiKey = savedApiKey;
+
+    apiKeyOverlay.style.display =
+        "none";
+
+    loadServers();
+}

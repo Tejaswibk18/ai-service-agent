@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 
+from api.auth import verify_api_key
 from api.schemas.agent import (
     AgentRequest,
     AgentResponse,
@@ -17,7 +18,8 @@ from utils.report import save_report
 
 router = APIRouter(
     prefix="/agent",
-    tags=["Agent"]
+    tags=["Agent"],
+    dependencies=[Depends(verify_api_key)]
 )
 
 
